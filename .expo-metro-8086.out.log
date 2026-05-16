@@ -1,0 +1,27 @@
+
+> cleanhome@1.0.0 start
+> expo start --port 8086 --clear
+
+Starting project at C:\Users\myeon\CleanHome
+React Compiler enabled
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8086
+Logs for your project will appear below.
+Web node_modules\expo-router\entry.js ▓░░░░░░░░░░░░░░░  7.4% ( 3/11)
+λ node_modules\expo-router\node\render.js ▓░░░░░░░░░░░░░░░ 10.7% ( 76/232)
+Web node_modules\expo-router\entry.js ▓▓▓░░░░░░░░░░░░░ 24.7% (194/436)
+λ node_modules\expo-router\node\render.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.5% (476/701)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.2% (754/920)
+λ node_modules\expo-router\node\render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83.6% ( 920/1006)
+λ Bundled 11690ms node_modules\expo-router\node\render.js (1228 modules)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.2% (1197/1202)
+Web Bundled 14080ms node_modules\expo-router\entry.js (1202 modules)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 54ms node_modules\expo-router\node\render.js (1 module)
+Web Bundled 616ms node_modules\expo-router\entry.js (1 module)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 39ms node_modules\expo-router\node\render.js (1 module)
+λ Bundled 58ms node_modules\expo-router\node\render.js (1 module)
+Web Bundled 1256ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 999ms node_modules\expo-router\entry.js (1 module)

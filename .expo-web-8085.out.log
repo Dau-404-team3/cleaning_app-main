@@ -1,0 +1,40 @@
+
+> cleanhome@1.0.0 web
+> expo start --web --port 8085
+
+Starting project at C:\Users\myeon\CleanHome
+React Compiler enabled
+Starting Metro Bundler
+Waiting on http://localhost:8085
+Logs for your project will appear below.
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules\expo-router\node\render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules\expo-router\node\render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 78.3% (570/644)
+λ node_modules\expo-router\node\render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 82.3% (692/837)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules\expo-router\node\render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 5992ms node_modules\expo-router\node\render.js (1221 modules)
+λ Bundled 6050ms node_modules\expo-router\node\render.js (1 module)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1217/1217)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 11457ms node_modules\expo-router\entry.js (1 module)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1217/1217)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 11507ms node_modules\expo-router\entry.js (1217 modules)
+Web Bundled 1392ms node_modules\expo-router\entry.js (1163 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 91ms node_modules\expo-router\node\render.js (1 module)
+Web Bundled 1268ms node_modules\expo-router\entry.js (1 module)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 34ms node_modules\expo-router\node\render.js (1 module)
+λ Bundled 66ms node_modules\expo-router\node\render.js (1 module)
+Web Bundled 1987ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 1802ms node_modules\expo-router\entry.js (1 module)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 92ms node_modules\expo-router\node\render.js (1 module)
+λ Bundled 115ms node_modules\expo-router\node\render.js (1 module)
+Web Bundled 1617ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 1609ms node_modules\expo-router\entry.js (1 module)
