@@ -68,9 +68,14 @@ export default function RoutineAddScreen() {
 
         <View style={styles.aiNote}>
           <Ionicons color={colors.green} name="sparkles" size={19} />
-          <Text style={styles.aiNoteText}>
-            공간을 선택하면 AI 맞춤 추천과 전체 루틴을 한 번에 볼 수 있어요.
-          </Text>
+          <View style={styles.aiNoteBody}>
+            <Text style={styles.aiNoteText}>
+              공간을 선택하면 AI 맞춤 추천과 전체 루틴을 한 번에 볼 수 있어요.
+            </Text>
+            <Text style={styles.aiNoteSubText}>
+              'AI 맞춤 추천 업데이트'를 누르면 새로운 루틴을 확인할 수 있어요. 사용 기간이 길어질수록 더 정교한 추천이 가능해요.
+            </Text>
+          </View>
         </View>
 
         <TouchableOpacity
@@ -165,13 +170,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 14,
   },
+  aiNoteBody: {
+    flex: 1,
+    gap: 5,
+  },
   aiNoteText: {
     color: colors.greenDark,
-    flex: 1,
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: 0,
     lineHeight: 21,
+  },
+  aiNoteSubText: {
+    color: colors.green,
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0,
+    lineHeight: 18,
   },
   backButton: {
     alignItems: 'center',
