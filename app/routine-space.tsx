@@ -5,13 +5,11 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -30,14 +28,6 @@ type RouteParams = {
 
 function getFirstParam(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
-}
-
-function hashString(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = Math.imul(31, h) + s.charCodeAt(i) | 0;
-  }
-  return h >>> 0;
 }
 
 type RoutineCardProps = {
@@ -199,10 +189,6 @@ export default function RoutineSpaceScreen() {
       .finally(() => setAiLoading(false));
   }, [params.spaceKey]);
 
-  const [customOpen, setCustomOpen] = useState(false);
-  const [customTitle, setCustomTitle] = useState('');
-  const [customMinutes, setCustomMinutes] = useState('');
-  const [customRoutines, setCustomRoutines] = useState<RoutineSuggestion[]>([]);
   const allRoutines = useMemo(() => {
     const aiRoutineIds = new Set([
       ...aiRoutines.map((routine) => routine.id),
@@ -219,11 +205,8 @@ export default function RoutineSpaceScreen() {
         }))
       : space.routines;
 
-    return [
-      ...baseRoutines.filter((routine) => !aiRoutineIds.has(routine.id)),
-      ...customRoutines,
-    ];
-  }, [aiRoutines, generatedAiRoutines, customRoutines, serverCatalogueRoutines, space.routines]);
+    return baseRoutines.filter((routine) => !aiRoutineIds.has(routine.id));
+  }, [aiRoutines, generatedAiRoutines, serverCatalogueRoutines, space.routines]);
   const routineLookup = useMemo(() => {
     const lookup = new Map<string, RoutineSuggestion>();
 
@@ -253,30 +236,6 @@ export default function RoutineSpaceScreen() {
 
       return next;
     });
-  };
-
-  const handleAddCustomRoutine = () => {
-    const title = customTitle.trim();
-    const minutes = Number(customMinutes.trim());
-
-    if (!title) {
-      Alert.alert('루틴 이름을 입력해주세요');
-      return;
-    }
-
-    const routine: RoutineSuggestion = {
-      description: `직접 추가한 ${space.label} 루틴이에요.`,
-      icon: 'create-outline',
-      id: `custom-${space.key}-${hashString(title)}`,
-      minutes: Number.isFinite(minutes) && minutes > 0 ? minutes : 5,
-      title,
-    };
-
-    setCustomRoutines((current) => [...current, routine]);
-    setSelectedIds((current) => new Set(current).add(routine.id));
-    setCustomTitle('');
-    setCustomMinutes('');
-    setCustomOpen(false);
   };
 
   const handleSubmit = () => {
@@ -398,75 +357,6 @@ export default function RoutineSpaceScreen() {
             </View>
           </View>
 
-          {customOpen ? (
-            <View style={styles.customForm}>
-              <View style={styles.customFormHeader}>
-                <View style={styles.customIcon}>
-                  <Ionicons color="#FFFFFF" name="add" size={17} />
-                </View>
-                <Text style={styles.customFormTitle}>직접 추가하기</Text>
-                <TouchableOpacity
-                  accessibilityLabel="직접 추가 닫기"
-                  accessibilityRole="button"
-                  activeOpacity={0.7}
-                  onPress={() => setCustomOpen(false)}
-                  style={styles.customCloseButton}
-                >
-                  <Ionicons color="#7DAE8C" name="close" size={18} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.customFormBody}>
-                <TextInput
-                  onChangeText={setCustomTitle}
-                  placeholder="루틴 이름을 입력하세요"
-                  placeholderTextColor="#9AA096"
-                  returnKeyType="done"
-                  style={styles.customInput}
-                  value={customTitle}
-                />
-                <View style={styles.customBottomRow}>
-                  <View style={styles.minuteInputGroup}>
-                    <Text style={styles.minuteLabel}>소요</Text>
-                    <TextInput
-                      keyboardType="number-pad"
-                      maxLength={3}
-                      onChangeText={setCustomMinutes}
-                      placeholder="5"
-                      placeholderTextColor="#9AA096"
-                      style={styles.minuteInput}
-                      value={customMinutes}
-                    />
-                    <Text style={styles.minuteLabel}>분</Text>
-                  </View>
-                  <TouchableOpacity
-                    accessibilityRole="button"
-                    activeOpacity={0.84}
-                    onPress={handleAddCustomRoutine}
-                    style={styles.customAddButton}
-                  >
-                    <Ionicons color="#FFFFFF" name="add" size={16} />
-                    <Text style={styles.customAddButtonText}>추가</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          ) : (
-            <TouchableOpacity
-              accessibilityRole="button"
-              activeOpacity={0.78}
-              onPress={() => setCustomOpen(true)}
-              style={styles.customTrigger}
-            >
-              <View style={styles.customIcon}>
-                <Ionicons color="#FFFFFF" name="add" size={17} />
-              </View>
-              <View style={styles.customTriggerCopy}>
-                <Text style={styles.customTriggerTitle}>직접 추가하기</Text>
-                <Text style={styles.customTriggerText}>원하는 루틴을 직접 만들어보세요</Text>
-              </View>
-              <Ionicons color="#8FC29D" name="chevron-forward" size={18} />
-            </TouchableOpacity>
-          )}
         </ScrollView>
 
         <View style={styles.bottomBar}>

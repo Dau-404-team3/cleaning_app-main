@@ -29,7 +29,6 @@ import {
 import {
   getNotificationInbox,
   markNotificationsRead,
-  testNotification,
   type NotificationItem,
 } from '../src/api/notification';
 import { clearPendingRoutineUpdate, getPendingRoutineUpdate } from '../src/api/chatbot';
@@ -146,6 +145,12 @@ const _tracker = (() => {
         delete data[id];
         save();
       }
+    },
+
+    /** 전체 루틴 초기화 시 호출 — 모든 완료/건너뜀 상태를 localStorage에서 삭제 */
+    clearAll() {
+      _cache = {};
+      save();
     },
   };
 })();
@@ -362,9 +367,12 @@ export default function Home() {
       '모든 루틴을 삭제하고 처음부터 다시 설정할까요?',
       '초기화',
       async () => {
+        // tracker를 먼저 비워야 재추가 시 이전 체크/건너뜀 상태가 남지 않음
+        _tracker.clearAll();
+        setTrackerVersion((v) => v + 1);
+        setTasks([]);
         try {
           await resetRoutine();
-          setTasks([]);
         } catch {
           showAlert('오류', '초기화에 실패했어요. 다시 시도해주세요.');
         }
@@ -477,15 +485,6 @@ export default function Home() {
       );
     }
   }, [notifications]);
-
-  const handleTestNotification = async () => {
-    try {
-      await testNotification();
-      showAlert('테스트 알림 전송', '잠시 후 알림이 도착해요.');
-    } catch {
-      showAlert('전송 실패', 'FCM 토큰이 등록되지 않았거나 서버 오류예요.');
-    }
-  };
 
   const openRoutine = (task: Task) => {
     router.push({
@@ -715,7 +714,6 @@ export default function Home() {
         onClose={() => setShowInbox(false)}
         onMarkAllRead={handleMarkAllRead}
         onMarkRead={handleMarkRead}
-        onSendTest={handleTestNotification}
         visible={showInbox}
       />
     </SafeAreaView>

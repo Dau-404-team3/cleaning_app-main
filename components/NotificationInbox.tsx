@@ -19,7 +19,6 @@ type Props = {
   onClose: () => void;
   onMarkRead: (id: string) => void;
   onMarkAllRead: () => void;
-  onSendTest: () => void;
 };
 
 function timeAgo(iso: string): string {
@@ -34,7 +33,7 @@ function timeAgo(iso: string): string {
 }
 
 export function NotificationInbox({
-  visible, notifications, loading, onClose, onMarkRead, onMarkAllRead, onSendTest,
+  visible, notifications, loading, onClose, onMarkRead, onMarkAllRead,
 }: Props) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -120,13 +119,6 @@ export function NotificationInbox({
           />
         )}
 
-        {/* 테스트 알림 버튼 */}
-        <View style={styles.footer}>
-          <TouchableOpacity activeOpacity={0.82} onPress={onSendTest} style={styles.testBtn}>
-            <Ionicons color="#26743E" name="send-outline" size={16} />
-            <Text style={styles.testBtnText}>테스트 알림 보내기</Text>
-          </TouchableOpacity>
-        </View>
       </SafeAreaView>
     </Modal>
   );
