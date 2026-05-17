@@ -69,7 +69,7 @@ export default function RoutineAddScreen() {
         <View style={styles.aiNote}>
           <Ionicons color={colors.green} name="sparkles" size={19} />
           <Text style={styles.aiNoteText}>
-            공간을 선택하면 AI 맞춤 추천, 전체 루틴, 직접 추가 입력칸을 한 번에 볼 수 있어요.
+            공간을 선택하면 AI 맞춤 추천과 전체 루틴을 한 번에 볼 수 있어요.
           </Text>
         </View>
 
