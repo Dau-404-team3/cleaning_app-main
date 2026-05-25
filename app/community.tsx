@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -48,6 +50,7 @@ export default function CommunityScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Record<string, { liked: boolean; count: number }>>({});
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -113,6 +116,7 @@ export default function CommunityScreen() {
         editType: post.type,
         editTitle: post.title ?? '',
         editContent: post.content,
+        editImageUrl: post.imageUrl ?? '',
       },
     });
   };
@@ -262,6 +266,19 @@ export default function CommunityScreen() {
                     </View>
                   )}
                 </TouchableOpacity>
+                {post.imageUrl ? (
+                  <TouchableOpacity
+                    activeOpacity={0.88}
+                    onPress={() => setExpandedImage(post.imageUrl)}
+                    style={styles.postThumbnailWrapper}
+                  >
+                    <Image
+                      contentFit="cover"
+                      source={{ uri: post.imageUrl }}
+                      style={styles.postThumbnail}
+                    />
+                  </TouchableOpacity>
+                ) : null}
 
                 <View style={styles.actionRow}>
                   <TouchableOpacity
@@ -323,6 +340,27 @@ export default function CommunityScreen() {
         )}
       </ScrollView>
       <RoutineBottomNav active="community" />
+
+      <Modal
+        animationType="fade"
+        onRequestClose={() => setExpandedImage(null)}
+        transparent
+        visible={!!expandedImage}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setExpandedImage(null)}
+          style={styles.modalOverlay}
+        >
+          {expandedImage ? (
+            <Image
+              contentFit="contain"
+              source={{ uri: expandedImage }}
+              style={styles.modalImage}
+            />
+          ) : null}
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -509,6 +547,19 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     marginTop: 14,
   },
+  postThumbnailWrapper: {
+    borderColor: '#E2E6E0',
+    borderRadius: 10,
+    borderWidth: 1,
+    marginLeft: 14,
+    marginTop: 10,
+    overflow: 'hidden',
+    width: 72,
+  },
+  postThumbnail: {
+    height: 72,
+    width: 72,
+  },
   postCard: {
     alignSelf: 'center',
     backgroundColor: colors.white,
@@ -601,5 +652,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '900',
     letterSpacing: 0,
+  },
+  modalOverlay: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.88)',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  modalImage: {
+    height: '80%',
+    width: '100%',
   },
 });

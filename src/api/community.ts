@@ -22,9 +22,10 @@ export async function createPost(
   type: 'cleaning_cert' | 'info_share',
   title: string,
   content: string,
-  tags?: string[]
+  tags?: string[],
+  imageBase64?: string
 ): Promise<CommunityPost> {
-  const { data } = await client.post<CommunityPost>('/community/posts', { type, title, content, tags });
+  const { data } = await client.post<CommunityPost>('/community/posts', { type, title, content, tags, imageBase64 });
   return data;
 }
 
@@ -57,9 +58,11 @@ export async function updatePost(
   postId: string,
   type: 'cleaning_cert' | 'info_share',
   title: string,
-  content: string
+  content: string,
+  imageBase64?: string,
+  removeImage?: boolean
 ): Promise<CommunityPost> {
-  const { data } = await client.put<CommunityPost>(`/community/posts/${postId}`, { type, title, content });
+  const { data } = await client.put<CommunityPost>(`/community/posts/${postId}`, { type, title, content, imageBase64, removeImage });
   return data;
 }
 

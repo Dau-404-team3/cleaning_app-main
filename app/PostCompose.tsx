@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeBack } from '../src/utils/useSafeBack';
 import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'expo-image';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -36,6 +38,7 @@ export default function PostComposeScreen() {
     editType?: string;
     editTitle?: string;
     editContent?: string;
+    editImageUrl?: string;
   }>();
 
   const postId = getFirstParam(params.postId);
@@ -48,6 +51,50 @@ export default function PostComposeScreen() {
   const [content, setContent] = useState(getFirstParam(params.editContent) ?? '');
   const [submitting, setSubmitting] = useState(false);
 
+  // 이미지 상태: localUri = 새로 선택한 이미지 미리보기 / existingUrl = 수정 시 기존 이미지
+  const [localUri, setLocalUri] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
+    getFirstParam(params.editImageUrl) ?? null
+  );
+
+  const previewUri = localUri ?? existingImageUrl;
+
+  const handlePickImage = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('권한 필요', '사진 접근 권한이 필요합니다.');
+        return;
+      }
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 0.7,
+      base64: true,
+    });
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      setLocalUri(asset.uri);
+      // 웹: asset.uri가 이미 data: URL / 모바일: asset.base64 + mimeType으로 조합
+      if (asset.base64) {
+        const mime = (asset as any).mimeType || 'image/jpeg';
+        setImageBase64(`data:${mime};base64,${asset.base64}`);
+      } else if (asset.uri.startsWith('data:')) {
+        setImageBase64(asset.uri);
+      } else {
+        setImageBase64(null);
+      }
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setLocalUri(null);
+    setImageBase64(null);
+    setExistingImageUrl(null);
+  };
+
   const canSubmit = title.trim().length > 0 && content.trim().length > 0;
 
   const handleSubmit = async () => {
@@ -55,9 +102,10 @@ export default function PostComposeScreen() {
     setSubmitting(true);
     try {
       if (isEdit && postId) {
-        await updatePost(postId, postType, title.trim(), content.trim());
+        const removeImage = !localUri && !existingImageUrl && !!getFirstParam(params.editImageUrl);
+        await updatePost(postId, postType, title.trim(), content.trim(), imageBase64 ?? undefined, removeImage);
       } else {
-        await createPost(postType, title.trim(), content.trim());
+        await createPost(postType, title.trim(), content.trim(), undefined, imageBase64 ?? undefined);
       }
       safeBack();
     } catch {
@@ -138,6 +186,32 @@ export default function PostComposeScreen() {
             textAlignVertical="top"
             value={content}
           />
+
+          <Text style={styles.sectionLabel}>사진 (선택)</Text>
+          {previewUri ? (
+            <View style={styles.imageThumbWrapper}>
+              <Image
+                contentFit="cover"
+                source={{ uri: previewUri }}
+                style={styles.imageThumb}
+              />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleRemoveImage}
+                style={styles.imageRemoveButton}
+              >
+                <Ionicons color={colors.white} name="close" size={13} />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.78}
+              onPress={handlePickImage}
+              style={styles.imageThumbPicker}
+            >
+              <Ionicons color={colors.muted} name="image-outline" size={22} />
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             activeOpacity={0.84}
@@ -275,5 +349,40 @@ const styles = StyleSheet.create({
   typeRow: {
     flexDirection: 'row',
     gap: 10,
+  },
+  imageThumbWrapper: {
+    marginBottom: 20,
+    position: 'relative',
+    width: 72,
+  },
+  imageThumb: {
+    borderColor: colors.border,
+    borderRadius: 12,
+    borderWidth: 1,
+    height: 72,
+    width: 72,
+  },
+  imageRemoveButton: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 10,
+    height: 20,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -6,
+    top: -6,
+    width: 20,
+  },
+  imageThumbPicker: {
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderColor: colors.border,
+    borderRadius: 12,
+    borderStyle: 'dashed',
+    borderWidth: 1.5,
+    height: 72,
+    justifyContent: 'center',
+    marginBottom: 20,
+    width: 72,
   },
 });

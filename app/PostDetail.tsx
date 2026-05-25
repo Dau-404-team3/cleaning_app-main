@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useSafeBack } from '../src/utils/useSafeBack';
+import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -29,6 +31,7 @@ export default function PostDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [expandedImage, setExpandedImage] = useState(false);
   const [commentDraft, setCommentDraft] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -104,6 +107,20 @@ export default function PostDetailScreen() {
 
             <Text style={styles.postTitle}>{post.title || post.content?.slice(0, 40)}</Text>
             <Text style={styles.body}>{post.content}</Text>
+
+            {post.imageUrl ? (
+              <TouchableOpacity
+                activeOpacity={0.88}
+                onPress={() => setExpandedImage(true)}
+                style={styles.postImageWrapper}
+              >
+                <Image
+                  contentFit="contain"
+                  source={{ uri: post.imageUrl }}
+                  style={styles.postImage}
+                />
+              </TouchableOpacity>
+            ) : null}
 
             {post.tags.length > 0 && (
               <View style={styles.tagRow}>
@@ -201,6 +218,27 @@ export default function PostDetailScreen() {
           </View>
         )}
       </ScrollView>
+
+      {post?.imageUrl ? (
+        <Modal
+          animationType="fade"
+          onRequestClose={() => setExpandedImage(false)}
+          transparent
+          visible={expandedImage}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setExpandedImage(false)}
+            style={styles.modalOverlay}
+          >
+            <Image
+              contentFit="contain"
+              source={{ uri: post.imageUrl }}
+              style={styles.modalImage}
+            />
+          </TouchableOpacity>
+        </Modal>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -273,6 +311,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0,
     lineHeight: 26,
+  },
+  postImageWrapper: {
+    borderColor: '#E2E6E0',
+    borderRadius: 14,
+    borderWidth: 1,
+    marginTop: 16,
+    overflow: 'hidden',
+  },
+  postImage: {
+    backgroundColor: '#F2F4F0',
+    height: 130,
+    width: '100%',
+  },
+  modalOverlay: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.88)',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  modalImage: {
+    height: '80%',
+    width: '100%',
   },
   card: {
     backgroundColor: colors.white,
