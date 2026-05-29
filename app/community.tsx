@@ -109,6 +109,8 @@ export default function CommunityScreen() {
   };
 
   const handleEditPost = (post: CommunityPost) => {
+    const urls = post.imageUrls?.length ? post.imageUrls
+      : post.imageUrl ? [post.imageUrl] : [];
     router.push({
       pathname: '/PostCompose',
       params: {
@@ -116,7 +118,7 @@ export default function CommunityScreen() {
         editType: post.type,
         editTitle: post.title ?? '',
         editContent: post.content,
-        editImageUrl: post.imageUrl ?? '',
+        editImageUrls: JSON.stringify(urls),
       },
     });
   };
@@ -266,15 +268,15 @@ export default function CommunityScreen() {
                     </View>
                   )}
                 </TouchableOpacity>
-                {post.imageUrl ? (
+                {(post.imageUrls?.[0] ?? post.imageUrl ?? null) ? (
                   <TouchableOpacity
                     activeOpacity={0.88}
-                    onPress={() => setExpandedImage(post.imageUrl)}
+                    onPress={() => setExpandedImage(post.imageUrls?.[0] ?? post.imageUrl ?? null)}
                     style={styles.postThumbnailWrapper}
                   >
                     <Image
                       contentFit="cover"
-                      source={{ uri: post.imageUrl }}
+                      source={{ uri: post.imageUrls?.[0] ?? post.imageUrl ?? undefined }}
                       style={styles.postThumbnail}
                     />
                   </TouchableOpacity>

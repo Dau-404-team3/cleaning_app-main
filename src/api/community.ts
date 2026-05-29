@@ -23,9 +23,9 @@ export async function createPost(
   title: string,
   content: string,
   tags?: string[],
-  imageBase64?: string
+  imageBase64Array?: string[]
 ): Promise<CommunityPost> {
-  const { data } = await client.post<CommunityPost>('/community/posts', { type, title, content, tags, imageBase64 });
+  const { data } = await client.post<CommunityPost>('/community/posts', { type, title, content, tags, imageBase64Array });
   return data;
 }
 
@@ -59,10 +59,10 @@ export async function updatePost(
   type: 'cleaning_cert' | 'info_share',
   title: string,
   content: string,
-  imageBase64?: string,
-  removeImage?: boolean
+  imageBase64Array?: string[],
+  removeImageUrls?: string[]
 ): Promise<CommunityPost> {
-  const { data } = await client.put<CommunityPost>(`/community/posts/${postId}`, { type, title, content, imageBase64, removeImage });
+  const { data } = await client.put<CommunityPost>(`/community/posts/${postId}`, { type, title, content, imageBase64Array, removeImageUrls });
   return data;
 }
 

@@ -38,7 +38,7 @@ export default function PostComposeScreen() {
     editType?: string;
     editTitle?: string;
     editContent?: string;
-    editImageUrl?: string;
+    editImageUrls?: string;
   }>();
 
   const postId = getFirstParam(params.postId);
@@ -51,16 +51,26 @@ export default function PostComposeScreen() {
   const [content, setContent] = useState(getFirstParam(params.editContent) ?? '');
   const [submitting, setSubmitting] = useState(false);
 
-  // 이미지 상태: localUri = 새로 선택한 이미지 미리보기 / existingUrl = 수정 시 기존 이미지
-  const [localUri, setLocalUri] = useState<string | null>(null);
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
-    getFirstParam(params.editImageUrl) ?? null
-  );
+  // 새로 선택한 이미지 목록
+  const [newImages, setNewImages] = useState<Array<{ uri: string; base64: string | null }>>([]);
+  // 수정 시 기존 이미지 URL 목록 (유지 중인 것만)
+  const [existingUrls, setExistingUrls] = useState<string[]>(() => {
+    const raw = getFirstParam(params.editImageUrls);
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch { return raw ? [raw] : []; }
+  });
+  // 원본 기존 URL (제거된 것 추적용)
+  const originalUrls = useState<string[]>(() => {
+    const raw = getFirstParam(params.editImageUrls);
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch { return raw ? [raw] : []; }
+  })[0];
 
-  const previewUri = localUri ?? existingImageUrl;
+  const totalCount = existingUrls.length + newImages.length;
+  const canAddMore = totalCount < 5;
 
   const handlePickImage = async () => {
+    if (!canAddMore) return;
     if (Platform.OS !== 'web') {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
@@ -76,23 +86,23 @@ export default function PostComposeScreen() {
     });
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
-      setLocalUri(asset.uri);
-      // 웹: asset.uri가 이미 data: URL / 모바일: asset.base64 + mimeType으로 조합
+      let base64: string | null = null;
       if (asset.base64) {
         const mime = (asset as any).mimeType || 'image/jpeg';
-        setImageBase64(`data:${mime};base64,${asset.base64}`);
+        base64 = `data:${mime};base64,${asset.base64}`;
       } else if (asset.uri.startsWith('data:')) {
-        setImageBase64(asset.uri);
-      } else {
-        setImageBase64(null);
+        base64 = asset.uri;
       }
+      setNewImages(prev => [...prev, { uri: asset.uri, base64 }]);
     }
   };
 
-  const handleRemoveImage = () => {
-    setLocalUri(null);
-    setImageBase64(null);
-    setExistingImageUrl(null);
+  const handleRemoveExisting = (url: string) => {
+    setExistingUrls(prev => prev.filter(u => u !== url));
+  };
+
+  const handleRemoveNew = (index: number) => {
+    setNewImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const canSubmit = title.trim().length > 0 && content.trim().length > 0;
@@ -101,11 +111,15 @@ export default function PostComposeScreen() {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
     try {
+      const imageBase64Array = newImages.map(i => i.base64).filter(Boolean) as string[];
       if (isEdit && postId) {
-        const removeImage = !localUri && !existingImageUrl && !!getFirstParam(params.editImageUrl);
-        await updatePost(postId, postType, title.trim(), content.trim(), imageBase64 ?? undefined, removeImage);
+        const removeImageUrls = originalUrls.filter(u => !existingUrls.includes(u));
+        await updatePost(postId, postType, title.trim(), content.trim(),
+          imageBase64Array.length ? imageBase64Array : undefined,
+          removeImageUrls.length ? removeImageUrls : undefined);
       } else {
-        await createPost(postType, title.trim(), content.trim(), undefined, imageBase64 ?? undefined);
+        await createPost(postType, title.trim(), content.trim(), undefined,
+          imageBase64Array.length ? imageBase64Array : undefined);
       }
       safeBack();
     } catch {
@@ -187,31 +201,45 @@ export default function PostComposeScreen() {
             value={content}
           />
 
-          <Text style={styles.sectionLabel}>사진 (선택)</Text>
-          {previewUri ? (
-            <View style={styles.imageThumbWrapper}>
-              <Image
-                contentFit="cover"
-                source={{ uri: previewUri }}
-                style={styles.imageThumb}
-              />
+          <View style={styles.imageSectionHeader}>
+            <Text style={styles.sectionLabel}>사진 (선택)</Text>
+            <Text style={styles.imageHint}>최대 5개까지 올릴 수 있습니다.</Text>
+          </View>
+          <View style={styles.imageRow}>
+            {existingUrls.map((url) => (
+              <View key={url} style={styles.imageThumbWrapper}>
+                <Image contentFit="cover" source={{ uri: url }} style={styles.imageThumb} />
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => handleRemoveExisting(url)}
+                  style={styles.imageRemoveButton}
+                >
+                  <Ionicons color={colors.white} name="close" size={13} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {newImages.map((img, index) => (
+              <View key={`new-${index}`} style={styles.imageThumbWrapper}>
+                <Image contentFit="cover" source={{ uri: img.uri }} style={styles.imageThumb} />
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => handleRemoveNew(index)}
+                  style={styles.imageRemoveButton}
+                >
+                  <Ionicons color={colors.white} name="close" size={13} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {canAddMore && (
               <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handleRemoveImage}
-                style={styles.imageRemoveButton}
+                activeOpacity={0.78}
+                onPress={handlePickImage}
+                style={styles.imageThumbPicker}
               >
-                <Ionicons color={colors.white} name="close" size={13} />
+                <Ionicons color={colors.muted} name="image-outline" size={22} />
               </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              activeOpacity={0.78}
-              onPress={handlePickImage}
-              style={styles.imageThumbPicker}
-            >
-              <Ionicons color={colors.muted} name="image-outline" size={22} />
-            </TouchableOpacity>
-          )}
+            )}
+          </View>
 
           <TouchableOpacity
             activeOpacity={0.84}
@@ -350,8 +378,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
   },
-  imageThumbWrapper: {
+  imageSectionHeader: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 10,
+  },
+  imageHint: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  imageRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: 20,
+  },
+  imageThumbWrapper: {
     position: 'relative',
     width: 72,
   },

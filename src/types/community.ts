@@ -5,6 +5,7 @@ export interface CommunityPost {
   title: string;
   content: string;
   imageUrl: string | null;
+  imageUrls: string[];
   tags: string[];
   likes: number;
   commentCount: number;

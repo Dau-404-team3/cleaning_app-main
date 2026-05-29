@@ -31,7 +31,7 @@ export default function PostDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
-  const [expandedImage, setExpandedImage] = useState(false);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -108,19 +108,32 @@ export default function PostDetailScreen() {
             <Text style={styles.postTitle}>{post.title || post.content?.slice(0, 40)}</Text>
             <Text style={styles.body}>{post.content}</Text>
 
-            {post.imageUrl ? (
-              <TouchableOpacity
-                activeOpacity={0.88}
-                onPress={() => setExpandedImage(true)}
-                style={styles.postImageWrapper}
-              >
-                <Image
-                  contentFit="contain"
-                  source={{ uri: post.imageUrl }}
-                  style={styles.postImage}
-                />
-              </TouchableOpacity>
-            ) : null}
+            {(() => {
+              const imgs = post.imageUrls?.length
+                ? post.imageUrls
+                : post.imageUrl
+                ? [post.imageUrl]
+                : [];
+              if (!imgs.length) return null;
+              return (
+                <View style={styles.imageRowDetail}>
+                  {imgs.map((url, i) => (
+                    <TouchableOpacity
+                      activeOpacity={0.88}
+                      key={i}
+                      onPress={() => setExpandedImage(url)}
+                      style={styles.postImageWrapper}
+                    >
+                      <Image
+                        contentFit="cover"
+                        source={{ uri: url }}
+                        style={styles.postImage}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              );
+            })()}
 
             {post.tags.length > 0 && (
               <View style={styles.tagRow}>
@@ -219,26 +232,26 @@ export default function PostDetailScreen() {
         )}
       </ScrollView>
 
-      {post?.imageUrl ? (
-        <Modal
-          animationType="fade"
-          onRequestClose={() => setExpandedImage(false)}
-          transparent
-          visible={expandedImage}
+      <Modal
+        animationType="fade"
+        onRequestClose={() => setExpandedImage(null)}
+        transparent
+        visible={!!expandedImage}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setExpandedImage(null)}
+          style={styles.modalOverlay}
         >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => setExpandedImage(false)}
-            style={styles.modalOverlay}
-          >
+          {expandedImage ? (
             <Image
               contentFit="contain"
-              source={{ uri: post.imageUrl }}
+              source={{ uri: expandedImage }}
               style={styles.modalImage}
             />
-          </TouchableOpacity>
-        </Modal>
-      ) : null}
+          ) : null}
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -312,17 +325,21 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
     lineHeight: 26,
   },
+  imageRowDetail: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 16,
+  },
   postImageWrapper: {
     borderColor: '#E2E6E0',
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: 1,
-    marginTop: 16,
     overflow: 'hidden',
   },
   postImage: {
-    backgroundColor: '#F2F4F0',
-    height: 130,
-    width: '100%',
+    height: 120,
+    width: 120,
   },
   modalOverlay: {
     alignItems: 'center',
