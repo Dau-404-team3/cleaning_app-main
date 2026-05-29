@@ -289,7 +289,7 @@ export default function Home() {
             if (!active || !pending?.categories?.length) return;
             suggestAction(
               '루틴 재생성',
-              '이전 챗봇과의 대화내역을 바탕으로 루틴을 재생성 해드릴까요?',
+              '지금까지의 루틴 수행률 및 챗봇과의 대화, 기타 사용자 데이터를 바탕으로 루틴을 재생성 할까요?',
               '재생성하기',
               async () => {
                 await clearPendingRoutineUpdate().catch(() => null);
@@ -406,7 +406,7 @@ export default function Home() {
             setTimeout(() => {
               confirmAction(
                 '루틴 재생성',
-                '자주 건너뛰기가 발생했습니다. 루틴을 재생성 해드릴까요?',
+              '지금까지의 루틴 수행률 및 챗봇과의 대화, 기타 사용자 데이터를 바탕으로 루틴을 재생성 할까요?',
                 '재생성하기',
                 () => router.push({
                   pathname: '/routine-loading',
